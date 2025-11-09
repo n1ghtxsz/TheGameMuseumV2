@@ -1,0 +1,41 @@
+/* HomePage.css */
+
+/* define a altura do carrossel (ajuste a vontade) */
+.custom-carousel-inner {
+  height: 56vh;      /* ocupa 56% da altura da viewport — ajuste para seu gosto */
+  min-height: 320px; /* garante mínimo em telas pequenas */
+  max-height: 640px; /* evita altura gigante em telas muito grandes */
+  overflow: hidden;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* garantir que cada slide ocupe 100% da altura do container */
+.custom-carousel-inner .carousel-item {
+  height: 100%;
+}
+
+/* a imagem deve preencher o slide e ser cortada proporcionalmente */
+.carousel-cover-img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;       /* faz o "crop" mantendo proporção */
+  object-position: center; /* centraliza o recorte; use "top" se quiser foco no topo */
+  display: block;          /* remove espaços em linha */
+}
+
+/* legendas */
+.caption-bg {
+  background: rgba(0,0,0,0.55);
+  bottom: 8%;
+  left: 10%;
+  right: 10%;
+  text-align: center;
+}
+
+/* responsividade: reduz a altura em telas muito pequenas */
+@media (max-width: 576px) {
+  .custom-carousel-inner {
+    height: 44vh;
+  }
+}

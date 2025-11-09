@@ -4,6 +4,11 @@ nav {
     height: 70px;
 }
 
+.navbar {
+    display: flex;
+    justify-content: space-between;
+}
+
 .container-fluid {
     margin: 100px;
 }

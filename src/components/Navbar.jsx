@@ -1,5 +1,5 @@
 import '../styles/Navbar.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function Navbar() {
     const [showInput, setShowInput] = useState(false);
@@ -62,7 +62,7 @@ function Navbar() {
                             <input
                                 className={`form-control mx-2 search-input ${showInput ? "show" : ""}`}
                                 type="search"
-                                placeholder="Search"
+                                placeholder="Procurar"
                                 aria-label="Search"
                             />
                         </form>
