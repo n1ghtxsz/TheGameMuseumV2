@@ -1,0 +1,55 @@
+.game-card {
+  display: flex;
+  align-items: center;
+  background: #1f1f23;
+  color: white;
+  width: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.game-card:hover {
+  transform: scale(1.03);
+}
+
+.game-card-image img {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 10px;
+}
+
+.game-card-title h3 {
+  font-size: 1.1rem;
+  margin-left: 10px;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+/* Efeito de brilho ao passar o mouse */
+.game-card-effect {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s ease;
+  pointer-events: none; /* não interfere no clique */
+}
+
+.game-card:hover .game-card-effect {
+  transform: translateX(100%);
+}
+
+/* Efeito sutil de sombra no hover */
+.game-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
