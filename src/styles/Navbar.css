@@ -4,6 +4,15 @@ nav {
     height: 70px;
 }
 
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    z-index: 1000;
+    width: 100%;
+    top: 0;
+}
+
 .container-fluid {
     margin: 100px;
 }

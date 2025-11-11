@@ -1,0 +1,99 @@
+/* HomePage.css */
+
+/* define a altura do carrossel (ajuste a vontade) */
+.custom-carousel-inner {
+  height: 56vh;      /* ocupa 56% da altura da viewport — ajuste para seu gosto */
+  min-height: 320px; /* garante mínimo em telas pequenas */
+  max-height: 640px; /* evita altura gigante em telas muito grandes */
+  overflow: hidden;
+  margin: 0 auto;
+  position: relative;
+}
+
+.mt-10 {
+  margin-top: 100px;
+}
+
+/* garantir que cada slide ocupe 100% da altura do container */
+.custom-carousel-inner .carousel-item {
+  height: 100%;
+}
+
+/* a imagem deve preencher o slide e ser cortada proporcionalmente */
+.carousel-cover-img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;       /* faz o "crop" mantendo proporção */
+  object-position: center; /* centraliza o recorte; use "top" se quiser foco no topo */
+  display: block;          /* remove espaços em linha */
+}
+
+/* legendas */
+.caption-bg {
+  background: rgba(0,0,0,0.55);
+  bottom: 8%;
+  left: 10%;
+  right: 10%;
+  text-align: center;
+}
+
+/* responsividade: reduz a altura em telas muito pequenas */
+@media (max-width: 576px) {
+  .custom-carousel-inner {
+    height: 44vh;
+  }
+}
+
+.btn-pagination {
+  color: white;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+.btn-pagination:hover {
+  transition: ease 0.3s;
+  background-color: rgba(255, 255, 255, 0.219);
+
+}
+
+.games-scroll {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+}
+
+.game-card {
+  flex: 0 0 auto;
+  width: 160px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  color: white;
+}
+
+.game-card:hover {
+  transform: scale(1.05);
+}
+
+.game-cover {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.game-card p {
+  margin: 5px 0;
+  line-height: 1.2;
+  white-space: normal;       /* permite quebrar linha */
+  word-wrap: break-word;     /* quebra palavras longas */
+  overflow-wrap: break-word; /* compatibilidade moderna */
+  max-width: 100%;           /* evita ultrapassar o card */
+  font-size: 0.9rem;
+}
+
