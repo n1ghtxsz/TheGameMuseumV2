@@ -25,9 +25,9 @@
 
 .game-card-title h3 {
   font-size: 1.1rem;
-  margin-left: 10px;
   font-family: 'Poppins', sans-serif;
   letter-spacing: 0.3px;
+  margin-top: 10px;
 }
 
 /* Efeito de brilho ao passar o mouse */
@@ -53,3 +53,28 @@
 .game-card:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
+
+/* Barra de carregamento sincronizada com o carrossel */
+.card-progress-bar {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(199, 199, 199, 0.224);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: none;
+  z-index: 0;
+}
+
+.card-progress-bar.active {
+  animation: fillCard 8s linear forwards;
+}
+
+@keyframes fillCard {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+

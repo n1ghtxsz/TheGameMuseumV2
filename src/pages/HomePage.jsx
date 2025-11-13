@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import LoadingScreen from "../components/LoadingScreen";
 import Navbar from "../components/Navbar";
 import { getGames, getGameDetails } from "../services/rawgApi";
 import "../styles/HomePage.css";
+import "../styles/GameCard.css"
 
 function HomePage() {
     const [games, setGames] = useState([]);
@@ -10,6 +11,9 @@ function HomePage() {
     const [prices, setPrices] = useState({});
     const [loading, setLoading] = useState(true);
     const [loadingProgress, setLoadingProgress] = useState(0); // ✅ Novo estado para progresso
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [prevIndex, setPrevIndex] = useState(null);
+    const carouselRef = useRef(null);
 
     useEffect(() => {
         let mounted = true;
@@ -94,6 +98,61 @@ function HomePage() {
         return () => { mounted = false; };
     }, []);
 
+    useEffect(() => {
+        if (games.length === 0) return;
+        const intervalTime = 8000;
+        const interval = setInterval(() => {
+            setActiveIndex((current) => {
+                setPrevIndex(current); // guarda o anterior para animação
+                return (current + 1) % games.length;
+            });
+        }, intervalTime);
+        return () => clearInterval(interval);
+    }, [games]);
+
+
+    useEffect(() => {
+        const carousel = document.getElementById("carouselExampleAutoplaying");
+        if (!carousel) return;
+
+        carouselRef.current = carousel;
+
+        const handleSlide = (event) => {
+            const nextIndex = [...carousel.querySelectorAll(".carousel-item")].indexOf(event.relatedTarget);
+            setActiveIndex(nextIndex);
+        };
+
+        carousel.addEventListener("slide.bs.carousel", handleSlide);
+
+        return () => {
+            carousel.removeEventListener("slide.bs.carousel", handleSlide);
+        };
+    }, []);
+
+    useEffect(() => {
+        // força reflow e garante que a transição seja aplicada
+        const container = document.querySelector('.custom-carousel-inner');
+        if (!container) return;
+
+        // tocar nas children para forçar recalculo de estilo
+        const items = Array.from(container.querySelectorAll('.carousel-item'));
+        items.forEach(el => {
+            // remove/transfere style inline temporariamente para "resetar" e forçar repaint
+            el.style.transition = 'none';
+            // leitura forçada para reflow
+            // eslint-disable-next-line no-unused-expressions
+            el.offsetHeight;
+        });
+
+        // reaplica transição com um pequeno delay (próximo frame)
+        requestAnimationFrame(() => {
+            items.forEach(el => {
+                el.style.transition = ''; // volta ao CSS
+            });
+        });
+    }, [activeIndex]);
+
+
     function scrollCarousel(offset) {
         const container = document.getElementById("games-scroll");
         if (container) {
@@ -111,55 +170,81 @@ function HomePage() {
                 <>
                     <Navbar />
                     <div className="container" style={{ marginTop: 150 }}>
-                        <div id="carouselExampleCaptions" className="carousel slide w-75" data-bs-ride="carousel">
-                            <div className="carousel-indicators">
-                                {games.map((_, i) => (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        data-bs-target="#carouselExampleCaptions"
-                                        data-bs-slide-to={i}
-                                        className={i === 0 ? "active" : ""}
-                                        aria-current={i === 0 ? "true" : "false"}
-                                        aria-label={`Slide ${i + 1}`}
-                                    />
-                                ))}
+                        <div className="d-flex">
+                            <div className="carousel slide w-75 my-auto">
+                                <div className="carousel-inner rounded-4 shadow-lg custom-carousel-inner my-auto">
+                                    {games.map((game, i) => {
+                                        const isActive = i === activeIndex;
+                                        const prevIndex = (activeIndex - 1 + games.length) % games.length;
+                                        const isPrev = i === prevIndex;
+
+                                        // monta a classe corretamente
+                                        const itemClass = [
+                                            "carousel-item",
+                                            isActive ? "active" : "",
+                                            isPrev ? "prev" : "",
+                                        ].join(" ").trim();
+
+                                        return (
+                                            <div key={game.id} className={itemClass}>
+                                                <img
+                                                    src={game.background_image || "/fallback.jpg"}
+                                                    className="d-block w-100 carousel-cover-img"
+                                                    alt={game.name}
+                                                    loading="lazy"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = "/fallback.jpg";
+                                                    }}
+                                                />
+
+                                                <div className="carousel-caption d-none d-md-block caption-bg rounded-3 p-3">
+                                                    <h5>{game.name}</h5>
+                                                    <p className="description-text">
+                                                        {game.description
+                                                            ? game.description.length > 220
+                                                                ? game.description.slice(0, 220) + "..."
+                                                                : game.description
+                                                            : "Descrição indisponível no momento."}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div className="carousel-inner rounded-4 shadow-lg custom-carousel-inner">
-                                {games.map((game, i) => (
-                                    <div key={game.id} className={`carousel-item ${i === 0 ? "active" : ""}`}>
-                                        <img
-                                            src={game.background_image || "/fallback.jpg"}
-                                            alt={game.name}
-                                            className="d-block w-100 carousel-cover-img"
-                                            loading="lazy"
-                                            onError={(e) => { e.target.onerror = null; e.target.src = "/fallback.jpg"; }}
-                                        />
 
-                                        <div className="carousel-caption d-none d-md-block caption-bg rounded-3 p-3">
-                                            <h5>{game.name}</h5>
-                                            <p className="description-text">
-                                                {game.description
-                                                    ? (game.description.length > 220 ? game.description.slice(0, 220) + "..." : game.description)
-                                                    : "Descrição indisponível no momento."}
-                                            </p>
+                            <div className="d-flex flex-column mt-4 ms-3" style={{ maxHeight: "600px" }}>
+                                {games.map((game, i) => (
+                                    <div key={game.id} className="game-card mb-3 position-relative overflow-hidden">
+                                        <div className="game-card-image">
+                                            <img
+                                                src={game.background_image || "/fallback.jpg"}
+                                                alt={game.name}
+                                                width={180}
+                                                height={220}
+                                                style={{ objectFit: "cover", borderRadius: "10px" }}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = "/fallback.jpg"; }}
+                                            />
                                         </div>
+
+                                        <div className="game-card-title mx-1">
+                                            <h3 className="text-light">{game.name}</h3>
+                                        </div>
+
+                                        {/* Barra de carregamento sincronizada */}
+                                        <div
+                                            className={`card-progress-bar ${i === activeIndex ? "active" : ""}`}
+                                            key={`progress-${game.id}-${activeIndex}`}
+                                        ></div>
+
+                                        <div className="game-card-effect"></div>
                                     </div>
                                 ))}
                             </div>
 
-                            <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-                                <span className="carousel-control-prev-icon" aria-hidden="true" />
-                                <span className="visually-hidden">Anterior</span>
-                            </button>
-
-                            <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-                                <span className="carousel-control-next-icon" aria-hidden="true" />
-                                <span className="visually-hidden">Próximo</span>
-                            </button>
                         </div>
-
                         <div className="d-flex flex-column mt-5">
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h1>Destaques da Galera</h1>
@@ -182,7 +267,7 @@ function HomePage() {
                                     </div>
                                 ) : (
                                     highlightGames.map((game) => (
-                                        <div key={game.id} className="game-card">
+                                        <div key={game.id} className="game-card-highlights">
                                             <img
                                                 src={game.background_image || "/fallback.jpg"}
                                                 alt={game.name}
