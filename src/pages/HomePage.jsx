@@ -8,47 +8,135 @@ import "../styles/GameCard.css"
 function HomePage() {
     const [games, setGames] = useState([]);
     const [highlightGames, setHighlightGames] = useState([]);
+    const [discoverGames, setDiscoverGames] = useState([]);
     const [prices, setPrices] = useState({});
+
     const [loading, setLoading] = useState(true);
     const [loadingProgress, setLoadingProgress] = useState(0); // ✅ Novo estado para progresso
+
     const [activeIndex, setActiveIndex] = useState(0);
     const [prevIndex, setPrevIndex] = useState(null);
+
+    const highlightRef = useRef(null);
+    const discoverRef = useRef(null);
     const carouselRef = useRef(null);
+
+    // 🔥 Pega jogos realmente aleatórios da RAWG
+    async function getRandomGames(qtd = 15) {
+        // pega só o "count"
+        const firstPage = await getGames(1, 1);
+        const total = firstPage.count;
+        const totalPages = Math.ceil(total / 50);
+
+        const collected = [];
+
+        while (collected.length < qtd) {
+            const randomPage = Math.floor(Math.random() * totalPages) + 1;
+
+            const list = await getGames(randomPage, 50);
+            const withImage = list.filter(g => g.background_image);
+
+            collected.push(...withImage);
+        }
+
+        return collected.slice(0, qtd);
+    }
+
 
     useEffect(() => {
         let mounted = true;
 
+        async function loadDiscover() {
+            try {
+                const list = await getGames(2, 50, "added"); // outra página para ficar mais variado
+                const withImage = list.filter(g => g.background_image);
+
+                // embaralhar
+                const shuffled = [...withImage].sort(() => Math.random() - 0.5);
+
+                // pegar 15 aleatórios
+                const randomSelection = shuffled.slice(0, 15);
+
+                setDiscoverGames(randomSelection);
+
+                const fetched = {};
+
+                // preços do DISCOVER
+                randomSelection.forEach(g => {
+                    const priceUSD =
+                        g.metacritic
+                            ? (100 - g.metacritic) / 2
+                            : Math.floor(Math.random() * 200) / 10 + 10;
+
+                    const priceBRL = priceUSD * 5.30;
+                    fetched[g.id] = `R$ ${priceBRL.toFixed(2)}`;
+                });
+
+                setPrices(prev => ({ ...prev, ...fetched }));
+            } catch (err) {
+                console.error("Erro no Discover:", err);
+            }
+        }
+
+
+
         async function load() {
             try {
                 setLoadingProgress(10); // ✅ Início do carregamento
-
                 async function loadHighlights() {
                     try {
                         const list = await getGames(1, 50, "rating");
                         const withImage = list.filter(g => g.background_image);
-                        setHighlightGames(withImage);
-                        setLoadingProgress(40); // ✅ Progresso após carregar destaques
 
-                        const fetchedPrices = {};
+                        setHighlightGames(withImage);
+                        setLoadingProgress(40);
+
+                        const fetched = {};
+
+                        // preços dos DESTAQUES
                         withImage.forEach(g => {
-                            const price =
+                            const priceUSD =
                                 g.metacritic
                                     ? (100 - g.metacritic) / 2
                                     : Math.floor(Math.random() * 200) / 10 + 10;
-                            fetchedPrices[g.id] = `R$ ${price.toFixed(2)}`;
+
+                            const priceBRL = priceUSD * 5.30;
+                            fetched[g.id] = `R$ ${priceBRL.toFixed(2)}`;
                         });
-                        if (mounted) setPrices(fetchedPrices);
+
+                        setPrices(prev => ({ ...prev, ...fetched }));
+
                     } catch (err) {
                         console.error("Erro ao carregar destaques:", err);
                     }
                 }
-                await loadHighlights();
 
+                await loadHighlights();
                 setLoadingProgress(60); // ✅ Progresso após destaques
 
-                const list = await getGames(1, 40);
-                const withImage = list.filter(g => g.background_image);
-                const selected = withImage.sort(() => 0.5 - Math.random()).slice(0, 5);
+                await loadDiscover();
+                setLoadingProgress(70)
+
+                const TOTAL_CAROUSEL = 200;   // quantidade real de jogos a sortear
+                const PAGE_SIZE = 40;
+                const TOTAL_PAGES = Math.ceil(TOTAL_CAROUSEL / PAGE_SIZE);
+
+                const carouselPromises = [];
+
+                for (let page = 1; page <= TOTAL_PAGES; page++) {
+                    carouselPromises.push(getGames(page, PAGE_SIZE, "added"));
+                }
+
+                let carouselData = (await Promise.all(carouselPromises))
+                    .flat()
+                    .filter(g => g.background_image);
+
+                // embaralha tudo
+                carouselData = carouselData.sort(() => Math.random() - 0.5);
+
+                // escolhe 5
+                const selected = carouselData.slice(0, 5);
+
 
                 setLoadingProgress(80); // ✅ Progresso após carregar jogos básicos
 
@@ -153,12 +241,12 @@ function HomePage() {
     }, [activeIndex]);
 
 
-    function scrollCarousel(offset) {
-        const container = document.getElementById("games-scroll");
-        if (container) {
-            container.scrollBy({ left: offset, behavior: "smooth" });
+    function scrollCarousel(ref, offset) {
+        if (ref.current) {
+            ref.current.scrollBy({ left: offset, behavior: "smooth" });
         }
     }
+
 
     return (
         <div>
@@ -213,8 +301,6 @@ function HomePage() {
                                     })}
                                 </div>
                             </div>
-
-
                             <div className="d-flex flex-column mt-4 ms-3" style={{ maxHeight: "600px" }}>
                                 {games.map((game, i) => (
                                     <div key={game.id} className="game-card mb-3 position-relative overflow-hidden">
@@ -247,18 +333,19 @@ function HomePage() {
                         </div>
                         <div className="d-flex flex-column mt-5">
                             <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h1>Destaques da Galera</h1>
+                                <h1 className="fs-2">Destaques da Galera</h1>
                                 <div className="d-flex">
-                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(-300)}>
+                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(highlightRef, -300)}>
                                         <i className="bi bi-arrow-left-circle"></i>
                                     </button>
-                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(300)}>
+                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(highlightRef, 300)}>
                                         <i className="bi bi-arrow-right-circle"></i>
                                     </button>
+
                                 </div>
                             </div>
 
-                            <div className="games-scroll d-flex justify-content-center mt-1 gap-3" id="games-scroll">
+                            <div className="games-scroll d-flex justify-content-center mt-1 gap-3" ref={highlightRef}>
                                 {highlightGames.length === 0 ? (
                                     <div className="d-flex justify-content-center">
                                         <div className="spinner-border" role="status">
@@ -267,6 +354,47 @@ function HomePage() {
                                     </div>
                                 ) : (
                                     highlightGames.map((game) => (
+                                        <div key={game.id} className="game-card-highlights">
+                                            <img
+                                                src={game.background_image || "/fallback.jpg"}
+                                                alt={game.name}
+                                                className="game-cover"
+                                                loading="lazy"
+                                                width={160}
+                                                height={200}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = "/fallback.jpg"; }}
+                                            />
+                                            <p className="mt-2 mb-0 fw-bold">{game.name}</p>
+                                            <p className="text-light">
+                                                {prices[game.id] ? prices[game.id] : "Preço indisponível"}
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                        <div className="d-flex flex-column mt-5">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h1 className="fs-2">Descubra algo novo</h1>
+                                <div className="d-flex">
+                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(discoverRef, -300)}>
+                                        <i className="bi bi-arrow-left-circle"></i>
+                                    </button>
+                                    <button className="btn btn-pagination" onClick={() => scrollCarousel(discoverRef, 300)}>
+                                        <i className="bi bi-arrow-right-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="games-scroll d-flex justify-content-center mt-1 gap-3" ref={discoverRef}>
+                                {discoverGames.length === 0 ? (
+                                    <div className="d-flex justify-content-center">
+                                        <div className="spinner-border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    discoverGames.map((game) => (
                                         <div key={game.id} className="game-card-highlights">
                                             <img
                                                 src={game.background_image || "/fallback.jpg"}
