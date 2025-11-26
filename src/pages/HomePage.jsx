@@ -262,7 +262,7 @@ function HomePage() {
                         <div>
                             <div class="search-box">
                                 <i class="bi bi-search"></i>
-                                <input type="text" placeholder="Pesquisar loja" />
+                                <input type="text" placeholder="Pesquisar jogo" />
                             </div>  
                         </div>
                         <div className="d-flex">

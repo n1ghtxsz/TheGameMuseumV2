@@ -6,7 +6,7 @@ function Navbar() {
         <>
             <nav className="navbar navbar-expand-lg">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="#"><img src="./assets/TheGameMuseum_logo.png" width={200} height={80} /></a>
+                    <a className="navbar-brand" href="#"><img  src="./assets/TheGameMuseum_logo.png" width={120} height={60} /></a>
                     <button
                         className="navbar-toggler bg-light"
                         type="button"
@@ -38,10 +38,26 @@ function Navbar() {
                                     Descobrir
                                 </a>
                                 <ul className="dropdown-menu">
-                                    <li><a className="dropdown-item text-light" href="#">Action</a></li>
-                                    <li><a className="dropdown-item text-light" href="#">Another action</a></li>
-                                    <li><hr className="dropdown-divider" /></li>
-                                    <li><a className="dropdown-item text-light" href="#">Something else here</a></li>
+                                    <li><a className="dropdown-item text-light" href="#">Fórum</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link text-light"
+                                    href="#"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    <i className='bi bi-globe'></i>
+                                </a>
+                                <ul className="dropdown-menu">
+                                    <li><a className="dropdown-item text-light" href="#">English</a></li>
+                                    <li><a className="dropdown-item text-light" href="#">Português BR</a></li>
                                 </ul>
                             </li>
                         </ul>
