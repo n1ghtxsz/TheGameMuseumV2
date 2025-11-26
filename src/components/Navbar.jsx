@@ -2,12 +2,11 @@ import '../styles/Navbar.css'
 import { useEffect, useState } from 'react';
 
 function Navbar() {
-    const [showInput, setShowInput] = useState(false);
     return (
         <>
             <nav className="navbar navbar-expand-lg">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="#"><img src="./assets/logo.png" width={200} height={30} /></a>
+                    <a className="navbar-brand" href="#"><img src="./assets/TheGameMuseum_logo.png" width={200} height={80} /></a>
                     <button
                         className="navbar-toggler bg-light"
                         type="button"
@@ -46,26 +45,6 @@ function Navbar() {
                                 </ul>
                             </li>
                         </ul>
-                        <form
-                            className="d-flex align-items-center search-form"
-                            role="search"
-                            onSubmit={(e) => e.preventDefault()}
-                        >
-                            <button
-                                type="button"
-                                className="btn btn-outline-warning"
-                                onClick={() => setShowInput(!showInput)}
-                            >
-                                <i className="bi bi-search"></i>
-                            </button>
-
-                            <input
-                                className={`form-control mx-2 search-input ${showInput ? "show" : ""}`}
-                                type="search"
-                                placeholder="Procurar"
-                                aria-label="Search"
-                            />
-                        </form>
                     </div>
                 </div>
             </nav>

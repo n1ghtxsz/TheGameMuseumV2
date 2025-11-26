@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import LoadingScreen from "../components/LoadingScreen";
 import Navbar from "../components/Navbar";
 import { getGames, getGameDetails } from "../services/rawgApi";
+import Footer from "../components/Footer";
 import "../styles/HomePage.css";
 import "../styles/GameCard.css"
 
@@ -258,6 +259,12 @@ function HomePage() {
                 <>
                     <Navbar />
                     <div className="container" style={{ marginTop: 150 }}>
+                        <div>
+                            <div class="search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="text" placeholder="Pesquisar loja" />
+                            </div>  
+                        </div>
                         <div className="d-flex">
                             <div className="carousel slide w-75 my-auto">
                                 <div className="carousel-inner rounded-4 shadow-lg custom-carousel-inner my-auto">
@@ -415,6 +422,7 @@ function HomePage() {
                             </div>
                         </div>
                     </div>
+                    <Footer />
                 </>
             )}
         </div>

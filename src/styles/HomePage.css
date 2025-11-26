@@ -108,3 +108,45 @@
   font-size: 0.9rem;
 }
 
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #1f1f22;      /* cor normal */
+  padding: 10px 16px;
+  border-radius: 40px;
+  width: 300px;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.search-box i {
+  color: #aaa;
+  font-size: 1rem;
+  margin-right: 10px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.search-box input::placeholder {
+  color: #c7c6b7;
+  opacity: 1;
+}
+
+/* Hover */
+.search-box:hover {
+  background: #35363a;
+}
+
+/* Focado */
+.search-box:has(input:focus) {
+  background: #35363a;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
+}
+
+
